@@ -1,363 +1,50 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Calculator</title>
-
-<!-- APP CONFIGURATION -->
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
 <style>
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: #000;
-  color: white;
-  font-family: Arial, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100dvh;
-}
-
-.calculator {
-  width: 100%;
-  max-width: 390px;
-  padding: 25px;
-}
-
-.display {
-  height: 180px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-end;
-  font-size: 75px;
-  font-weight: 300;
-  overflow: hidden;
-  padding-bottom: 20px;
-  white-space: nowrap;
-}
-
-.buttons {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-}
-
-button {
-  border: none;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  font-size: 30px;
-  color: white;
-  background: #333;
-  cursor: pointer;
-  transition: 0.15s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-button:active {
-  filter: brightness(1.5);
-  transform: scale(0.94);
-}
-
-.gray {
-  background: #a5a5a5;
-  color: black;
-}
-
-.orange {
-  background: #ff9f0a;
-}
-
-.orange.selected {
-  background: white;
-  color: #ff9f0a;
-}
-
-.zero {
-  grid-column: span 2;
-  aspect-ratio: auto;
-  border-radius: 100px;
-  text-align: left;
-  padding-left: 30px;
-}
-
-/* SECRET ANIMATION */
-
-.secret {
-  font-size: 35px !important;
-  color: #ff9fba;
-  animation: appear 0.7s ease;
-}
-
-@keyframes appear {
-  0% {
-    opacity: 0;
-    transform: scale(0.6);
-  }
-
-  60% {
-    transform: scale(1.08);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
+*{box-sizing:border-box}body{margin:0;background:#000;color:#fff;font-family:Arial,sans-serif;min-height:100dvh;display:flex;justify-content:center;align-items:center}.calculator{width:100%;max-width:390px;padding:20px}.top{display:flex;justify-content:space-between;align-items:center;min-height:40px}.history-toggle,.backspace{border:0;background:transparent;color:#ff9f0a;font-size:25px;cursor:pointer;padding:5px 10px}.preview{height:30px;text-align:right;color:#999;font-size:19px;overflow:hidden;white-space:nowrap}.display{height:130px;display:flex;justify-content:flex-end;align-items:flex-end;font-size:72px;font-weight:300;overflow:hidden;white-space:nowrap;padding-bottom:15px}.buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}button.key{border:0;aspect-ratio:1;border-radius:50%;font-size:29px;color:#fff;background:#333;cursor:pointer;-webkit-tap-highlight-color:transparent}button.key:active{filter:brightness(1.4);transform:scale(.96)}button.gray{background:#a5a5a5;color:#000}button.orange{background:#ff9f0a}button.orange.selected{background:#fff;color:#ff9f0a}button.zero{grid-column:span 2;aspect-ratio:auto;border-radius:100px;text-align:left;padding-left:30px}.secret{font-size:34px!important;color:#ff9fba;animation:appear .7s ease}@keyframes appear{from{opacity:0;transform:scale(.6)}60%{transform:scale(1.08)}to{opacity:1;transform:scale(1)}}.history{display:none;position:absolute;z-index:2;top:55px;left:50%;transform:translateX(-50%);width:min(350px,90vw);max-height:55dvh;overflow:auto;background:#202020;border:1px solid #555;border-radius:14px;padding:14px;box-shadow:0 10px 30px #000}.history.open{display:block}.history-header{display:flex;justify-content:space-between;align-items:center}.history-header button{background:none;color:#ff9f0a;border:0;font-size:16px}.history-item{border-bottom:1px solid #444;padding:10px 0;text-align:right;overflow-wrap:anywhere}.history-item small{color:#aaa;display:block;margin-bottom:5px}@media(max-height:670px){.display{height:90px;font-size:60px}.calculator{padding:12px}.buttons{gap:8px}}
 </style>
 </head>
-
 <body>
-
-<div class="calculator">
-
-  <div class="display" id="display">0</div>
-
-  <div class="buttons">
-
-    <button class="gray" onclick="clearAll()">AC</button>
-    <button class="gray" onclick="toggleSign()">+/-</button>
-    <button class="gray" onclick="percent()">%</button>
-    <button class="orange" onclick="setOperator('÷',this)">÷</button>
-
-    <button onclick="number('7')">7</button>
-    <button onclick="number('8')">8</button>
-    <button onclick="number('9')">9</button>
-    <button class="orange" onclick="setOperator('×',this)">×</button>
-
-    <button onclick="number('4')">4</button>
-    <button onclick="number('5')">5</button>
-    <button onclick="number('6')">6</button>
-    <button class="orange" onclick="setOperator('-',this)">−</button>
-
-    <button onclick="number('1')">1</button>
-    <button onclick="number('2')">2</button>
-    <button onclick="number('3')">3</button>
-    <button class="orange" onclick="setOperator('+',this)">+</button>
-
-    <button class="zero" onclick="number('0')">0</button>
-    <button onclick="decimal()">.</button>
-    <button class="orange" onclick="calculate()">=</button>
-
-  </div>
-</div>
-
+<main class="calculator">
+ <div class="top"><button class="history-toggle" onclick="toggleHistory()" aria-label="History">◷</button><button class="backspace" onclick="backspace()" aria-label="Delete last digit">⌫</button></div>
+ <section class="history" id="history"><div class="history-header"><strong>History</strong><button onclick="clearHistory()">Clear</button><button onclick="toggleHistory()">Close</button></div><div id="historyList">No calculations yet.</div></section>
+ <div class="preview" id="preview"></div><div class="display" id="display" aria-live="polite">0</div>
+ <div class="buttons">
+ <button class="key gray" onclick="clearAll()">AC</button><button class="key gray" onclick="toggleSign()">±</button><button class="key gray" onclick="percent()">%</button><button class="key orange" onclick="setOperator('÷',this)">÷</button>
+ <button class="key" onclick="number('7')">7</button><button class="key" onclick="number('8')">8</button><button class="key" onclick="number('9')">9</button><button class="key orange" onclick="setOperator('×',this)">×</button>
+ <button class="key" onclick="number('4')">4</button><button class="key" onclick="number('5')">5</button><button class="key" onclick="number('6')">6</button><button class="key orange" onclick="setOperator('-',this)">−</button>
+ <button class="key" onclick="number('1')">1</button><button class="key" onclick="number('2')">2</button><button class="key" onclick="number('3')">3</button><button class="key orange" onclick="setOperator('+',this)">+</button>
+ <button class="key zero" onclick="number('0')">0</button><button class="key" onclick="decimal()">.</button><button class="key orange" onclick="calculate()">=</button>
+ </div>
+</main>
 <script>
-
-let current = "0";
-let previous = null;
-let operation = null;
-let resetScreen = false;
-let secretShown = false;
-
-const display = document.getElementById("display");
-
-function update() {
-  display.classList.remove("secret");
-
-  if (current === "Error") {
-    display.textContent = "Error";
-  } else {
-    let value = Number(current);
-
-    display.textContent = current.endsWith(".")
-      ? value.toLocaleString("en-US") + "."
-      : value.toLocaleString("en-US", {
-          maximumFractionDigits: 8
-        });
-  }
-
-  let length = display.textContent.length;
-
-  display.style.fontSize =
-    length > 12 ? "35px" :
-    length > 9 ? "48px" : "75px";
-}
-
-function number(num) {
-  if (secretShown || current === "Error") {
-    clearAll();
-  }
-
-  if (resetScreen) {
-    current = num;
-    resetScreen = false;
-
-    document.querySelectorAll(".orange")
-      .forEach(b => b.classList.remove("selected"));
-
-  } else {
-    if (current.replace(/[^0-9]/g, "").length >= 12) return;
-
-    current = current === "0" ? num : current + num;
-  }
-
-  update();
-}
-
-function decimal() {
-  if (secretShown || current === "Error") clearAll();
-
-  if (resetScreen) {
-    current = "0";
-    resetScreen = false;
-  }
-
-  if (!current.includes(".")) {
-    current += ".";
-  }
-
-  update();
-}
-
-function clearAll() {
-  current = "0";
-  previous = null;
-  operation = null;
-  resetScreen = false;
-  secretShown = false;
-
-  display.classList.remove("secret");
-
-  document.querySelectorAll(".orange")
-    .forEach(b => b.classList.remove("selected"));
-
-  update();
-}
-
-function toggleSign() {
-  if (secretShown || current === "Error") return;
-
-  if (current !== "0") {
-    current = String(-Number(current));
-    update();
-  }
-}
-
-function percent() {
-  if (secretShown || current === "Error") return;
-
-  current = String(Number(current) / 100);
-  update();
-}
-
-function setOperator(op, btn) {
-  if (secretShown || current === "Error") return;
-
-  if (operation && !resetScreen) {
-    calculate();
-
-    if (secretShown || current === "Error") return;
-  }
-
-  previous = Number(current);
-  operation = op;
-  resetScreen = true;
-
-  document.querySelectorAll(".orange")
-    .forEach(b => b.classList.remove("selected"));
-
-  btn.classList.add("selected");
-}
-
-function showSecret(message) {
-  secretShown = true;
-
-  display.textContent = message;
-  display.classList.remove("secret");
-
-  void display.offsetWidth;
-
-  display.classList.add("secret");
-
-  previous = null;
-  operation = null;
-  resetScreen = true;
-
-  document.querySelectorAll(".orange")
-    .forEach(b => b.classList.remove("selected"));
-}
-
-function calculate() {
-  if (secretShown || operation === null || previous === null) return;
-
-  let second = Number(current);
-
-  // SECRET CODE 1 ❤️
-
-  if (previous === 14 && operation === "+" && second === 3) {
-    showSecret("i love youu❤️");
-    return;
-  }
-
-  // SECRET CODE 2 ❤️
-
-  if (previous === 140 && operation === "+" && second === 3) {
-    showSecret("i miss youu❤️");
-    return;
-  }
-
-  // NORMAL CALCULATOR
-
-  let result;
-
-  switch (operation) {
-    case "+":
-      result = previous + second;
-      break;
-
-    case "-":
-      result = previous - second;
-      break;
-
-    case "×":
-      result = previous * second;
-      break;
-
-    case "÷":
-      result = second === 0 ? NaN : previous / second;
-      break;
-  }
-
-  current = Number.isFinite(result)
-    ? String(Number(result.toPrecision(12)))
-    : "Error";
-
-  previous = null;
-  operation = null;
-  resetScreen = true;
-
-  document.querySelectorAll(".orange")
-    .forEach(b => b.classList.remove("selected"));
-
-  update();
-}
-
+let current='0',previous=null,operation=null,resetScreen=false,secretShown=false,history=[];
+const display=document.getElementById('display'),preview=document.getElementById('preview');
+function format(v){if(v==='Error')return v;const n=Number(v);if(!Number.isFinite(n))return 'Error';return n.toLocaleString('en-US',{maximumFractionDigits:10})+(v.endsWith('.')?'.':'');}
+function deselect(){document.querySelectorAll('.orange').forEach(b=>b.classList.remove('selected'));}
+function update(){display.classList.remove('secret');display.textContent=format(current);let l=display.textContent.length;display.style.fontSize=l>15?'29px':l>12?'36px':l>9?'48px':'72px';if(operation!==null)preview.textContent=format(String(previous))+' '+operation+(resetScreen?'':' '+format(current));}
+function clearAll(){current='0';previous=null;operation=null;resetScreen=false;secretShown=false;preview.textContent='';deselect();update();}
+function number(n){if(secretShown||current==='Error')clearAll();if(resetScreen){current=n;resetScreen=false;deselect();}else{if(current.replace(/\D/g,'').length>=12)return;current=current==='0'?n:current==='-0'?'-'+n:current+n;}update();}
+function decimal(){if(secretShown||current==='Error')clearAll();if(resetScreen){current='0';resetScreen=false;deselect();}if(!current.includes('.'))current+='.';update();}
+function backspace(){if(secretShown||current==='Error'){clearAll();return;}if(resetScreen)return;current=current.slice(0,-1);if(!current||current==='-')current='0';update();}
+function toggleSign(){if(secretShown||current==='Error')return;if(resetScreen){current='0';resetScreen=false;}if(Number(current)!==0)current=String(-Number(current));update();}
+function percent(){if(secretShown||current==='Error')return;if(resetScreen){current='0';resetScreen=false;}current=String(Number(current)/100);update();}
+function setOperator(op,btn){if(secretShown||current==='Error')return;if(operation!==null&&!resetScreen){calculate();if(secretShown||current==='Error')return;}previous=Number(current);operation=op;resetScreen=true;deselect();btn.classList.add('selected');update();}
+function showSecret(message){secretShown=true;display.textContent=message;display.classList.remove('secret');void display.offsetWidth;display.classList.add('secret');display.style.fontSize='34px';preview.textContent='';previous=null;operation=null;resetScreen=true;deselect();}
+function calculate(){if(secretShown||operation===null||previous===null||resetScreen)return;const second=Number(current),first=previous,op=operation,expression=format(String(first))+' '+op+' '+format(String(second));if(first===14&&op==='+'&&second===3){showSecret('i love youu❤️');return;}if(first===140&&op==='+'&&second===3){showSecret('i miss youu❤️');return;}let result;switch(op){case '+':result=first+second;break;case '-':result=first-second;break;case '×':result=first*second;break;case '÷':result=second===0?NaN:first/second;break;}current=Number.isFinite(result)?String(Number(result.toPrecision(12))):'Error';history.unshift({expression,result:format(current)});history=history.slice(0,30);renderHistory();previous=null;operation=null;resetScreen=true;deselect();update();preview.textContent=expression+' =';}
+function toggleHistory(){document.getElementById('history').classList.toggle('open');}
+function clearHistory(){history=[];renderHistory();}
+function renderHistory(){const list=document.getElementById('historyList');list.replaceChildren();if(!history.length){list.textContent='No calculations yet.';return;}history.forEach(h=>{let item=document.createElement('div'),small=document.createElement('small'),strong=document.createElement('strong');item.className='history-item';small.textContent=h.expression+' =';strong.textContent=h.result;item.append(small,strong);list.append(item);});}
 update();
-
-/* SERVICE WORKER REGISTRATION */
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .catch(error => {
-        console.log("Service worker:", error);
-      });
-  });
-}
-
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.log));
 </script>
-
 </body>
 </html>
